@@ -1,0 +1,4 @@
+from mojo.roboFont import OpenWindow
+from roboHUD.settingsWindow import RoboHUDSettingsWindowController
+
+OpenWindow(RoboHUDSettingsWindowController)
