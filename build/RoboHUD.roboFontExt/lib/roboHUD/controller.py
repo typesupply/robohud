@@ -101,7 +101,7 @@ class _RoboHUDController(object):
         self._displayed[windowRef][position] = control
 
     def removeControlsFromExistingWindows(self):
-        if position in self._positions.keys():
+        for position in self._positions.keys():
             for windowRef in self._displayed.keys():
                 self._removeControlFromWindow(windowRef, position)
         self._displayed = {}
