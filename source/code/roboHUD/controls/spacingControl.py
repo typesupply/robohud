@@ -72,8 +72,17 @@ class SpacingHUDControl(BaseRoboHUDControl):
         width = left = right = ""
         if glyph is not None:
             width = str(glyph.width)
-            left = str(glyph.leftMargin)
-            right = str(glyph.rightMargin)
+            if len(glyph) or len(glyph.components): # XXX RF < 3.2 fix
+                left = glyph.leftMargin
+                if left is None:
+                    left = ""
+                else:
+                    left = str(left)
+                right = glyph.rightMargin
+                if right is None:
+                    right = ""
+                else:
+                    right = str(glyph.rightMargin)
         self.view.widthEditText.set(width)
         self.view.leftEditText.set(left)
         self.view.rightEditText.set(right)
