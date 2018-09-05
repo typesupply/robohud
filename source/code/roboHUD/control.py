@@ -57,9 +57,7 @@ class RoboHUDDimmableView(NSView):
         controller = NSApp().RoboHUD
         needsInactiveOpacity = self.fadeLayer.opacity() == self._inactiveOpacity
         self._inactiveOpacity = controller.getInactiveOpacity()
-        print("loadDisplaySettings", needsInactiveOpacity, self._inactiveOpacity)
         if needsInactiveOpacity:
-            print(">", self)
             self._setOpacity_(self._inactiveOpacity)
 
     def _setOpacity_(self, value):
