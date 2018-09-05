@@ -88,6 +88,7 @@ class AlignSelectionHUDControl(BaseRoboHUDControl):
         for contour in selectedContours:
             contour.round()
         glyph.performUndo()
+        glyph.changed()
         UpdateCurrentGlyphView()
 
     def _alignTop(self, rects, selectedContours, selectedBPoints):
@@ -185,6 +186,7 @@ class AlignSelectionHUDControl(BaseRoboHUDControl):
         for contour in selectedContours:
             contour.round()
         glyph.performUndo()
+        glyph.changed()
         UpdateCurrentGlyphView()
 
     def _distributeTop(self, rects, selectedContours, selectedBPoints):

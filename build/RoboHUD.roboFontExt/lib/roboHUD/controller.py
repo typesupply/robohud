@@ -11,7 +11,7 @@ defaults = {
     defaultStub + "positions" : {},
     defaultStub + "foregroundColor" : (0.3, 0.3, 0.3, 0.5),
     defaultStub + "backgroundColor" : (1.0, 1.0, 1.0, 0.2),
-    defaultStub + "inactiveOpacity" : (0.2)
+    defaultStub + "inactiveOpacity" : (0.4)
 }
 
 class _RoboHUDController(object):
@@ -25,6 +25,7 @@ class _RoboHUDController(object):
         self._margin = None
         self._foregroundColor = None
         self._backgroundColor = None
+        self._inactiveOpacity = None
         self._loadDefaults()
         events.addObserver(self, "_glyphWindowWillCloseCallback", "glyphWindowWillClose")
         events.addObserver(self, "_glyphWindowWillOpenCallback", "glyphWindowWillOpen")
@@ -36,6 +37,7 @@ class _RoboHUDController(object):
 
     def _writeDefaults(self):
         extensions.setExtensionDefault(defaultStub + "margin", self._margin)
+        extensions.setExtensionDefault(defaultStub + "inactiveOpacity", self._inactiveOpacity)
         positions = {}
         for position, name in self._positions.items():
             position = " ".join(position)
@@ -49,6 +51,7 @@ class _RoboHUDController(object):
             position = tuple(position.split(" "))
             self._positions[position] = name
         self._margin = extensions.getExtensionDefault(defaultStub + "margin")
+        self._inactiveOpacity = extensions.getExtensionDefault(defaultStub + "inactiveOpacity")
         r, g, b, a = extensions.getExtensionDefault(defaultStub + "foregroundColor")
         self._foregroundColor = NSColor.colorWithCalibratedRed_green_blue_alpha_(r, g, b, a)
         r, g, b, a = extensions.getExtensionDefault(defaultStub + "backgroundColor")
@@ -113,10 +116,11 @@ class _RoboHUDController(object):
 
     def _removeControlFromWindow(self, windowRef, position):
         window = windowRef()
-        control = self._displayed[windowRef][position]
-        window.removeGlyphEditorSubview(control.view)
-        control.stop()
-        del self._displayed[windowRef][position]
+        if position in self._displayed[windowRef]:
+            control = self._displayed[windowRef][position]
+            window.removeGlyphEditorSubview(control.view)
+            control.stop()
+            del self._displayed[windowRef][position]
 
     def updateControlPositions(self):
         if not self._active:
@@ -172,6 +176,11 @@ class _RoboHUDController(object):
     # Settings API
     # ------------
 
+    def _tellControlsToReloadDefaults(self):
+        for windowRef, positions in self._displayed.items():
+            for position, control in positions.items():
+                control._reloadDisplaySettings()
+
     def getForegroundColor(self):
         return self._foregroundColor
 
@@ -185,6 +194,14 @@ class _RoboHUDController(object):
         self._margin = value
         self.updateControlPositions()
         self._writeDefaults()
+
+    def getInactiveOpacity(self):
+        return self._inactiveOpacity
+
+    def setInactiveOpacity(self, value):
+        self._inactiveOpacity = value
+        self._writeDefaults()
+        self._tellControlsToReloadDefaults()
 
     def getAvailableControlNames(self):
         return sorted(self._classes.keys())

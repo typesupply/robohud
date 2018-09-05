@@ -6,7 +6,7 @@ from roboHUD import RoboHUDController, BaseRoboHUDControl
 class GlyphNameHUDControl(BaseRoboHUDControl):
 
     name = "Glyph Name and Character"
-    size = (300, 40)
+    size = (300, 30)
 
     def start(self):
         super(GlyphNameHUDControl, self).start()

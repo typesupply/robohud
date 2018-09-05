@@ -1,4 +1,4 @@
-from AppKit import NSView, CALayer
+from AppKit import NSApp, NSView, CALayer
 import vanilla
 from mojo import events
 
@@ -25,9 +25,9 @@ class BaseRoboHUDControl(object):
         events.removeObserver(self, "draw")
         events.removeObserver(self, "drawPreview")
 
-    def _setInactiveOpacity(self, value):
+    def _reloadDisplaySettings(self):
         if isinstance(self.view, RoboHUDDimmableGroup):
-            self.view.getNSView().setInactiveOpacity_(value)
+            self.view._reloadDisplaySettings()
 
     def _drawNotificationCallback(self, info):
         self.view.show(True)
@@ -46,18 +46,22 @@ class RoboHUDDimmableView(NSView):
         self = super(RoboHUDDimmableView, self).init()
         self.fadeLayer = CALayer.layer()
         self._activeOpacity = 1.0
-        self._inactiveOpacity = 0.2
+        self._inactiveOpacity = 1.0
+        self.loadDisplaySettings()
         self.fadeLayer.setOpacity_(self._activeOpacity)
         self.setLayer_(self.fadeLayer)
         self.setWantsLayer_(True)
         return self
 
+    def loadDisplaySettings(self):
+        controller = NSApp().RoboHUD
+        needsInactiveOpacity = self.fadeLayer.opacity() == self._inactiveOpacity
+        self._inactiveOpacity = controller.getInactiveOpacity()
+        if needsInactiveOpacity:
+            self._setOpacity_(self._inactiveOpacity)
+
     def _setOpacity_(self, value):
         self.fadeLayer.setOpacity_(value)
-
-    def setInactiveOpacity_(self, value):
-        self._inactiveOpacity = value
-        self._setOpacity_(value)
 
     def acceptsFirstResponder(self):
         return True
@@ -77,7 +81,6 @@ class RoboHUDDimmableView(NSView):
         b = self.bounds()
         self._trackingTag = self.addTrackingRect_owner_userData_assumeInside_(b, self, None, True)
         self._setOpacity_(self._inactiveOpacity)
-
         if hasattr(self, "vanillaWrapper"):
             wrapper = self.vanillaWrapper()
             if hasattr(wrapper, "subscribeToWindow"):
@@ -87,3 +90,6 @@ class RoboHUDDimmableView(NSView):
 class RoboHUDDimmableGroup(vanilla.Group):
 
     nsViewClass = RoboHUDDimmableView
+
+    def _reloadDisplaySettings(self):
+        self.getNSView().loadDisplaySettings()

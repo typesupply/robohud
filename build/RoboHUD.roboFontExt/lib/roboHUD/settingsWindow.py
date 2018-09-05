@@ -7,7 +7,7 @@ class RoboHUDSettingsWindowController(object):
         self.controller = RoboHUDController()
         self.classNames = ["None"] + self.controller.getAvailableControlNames()
 
-        self.w = vanilla.Window((400, 340), "RoboHUD Settings")
+        self.w = vanilla.Window((400, 370), "RoboHUD Settings")
 
         self.w.marginTitle = vanilla.TextBox(
             (15, 15, 100, 17),
@@ -24,6 +24,21 @@ class RoboHUDSettingsWindowController(object):
             callback=self.marginSliderCallback
         )
 
+        self.w.inactiveOpacityTitle = vanilla.TextBox(
+            (15, 45, 100, 17),
+            "Dim Level:",
+            alignment="right"
+        )
+        self.w.inactiveOpacitySlider = vanilla.Slider(
+            (120, 50, -15, 23),
+            value=self.controller.getMargin(),
+            minValue=0,
+            maxValue=1.0,
+            tickMarkCount=11,
+            stopOnTickMarks=False,
+            callback=self.inactiveOpacitySliderCallback
+        )
+
         positions = [
             ("left", "top"),
             ("center", "top"),
@@ -37,7 +52,7 @@ class RoboHUDSettingsWindowController(object):
         ]
         defined = self.controller.getControlPositions()
 
-        top = 60
+        top = 90
         for position in positions:
             index = 0
             if position in defined:
@@ -59,6 +74,10 @@ class RoboHUDSettingsWindowController(object):
     def marginSliderCallback(self, sender):
         value = sender.get()
         self.controller.setMargin(value)
+
+    def inactiveOpacitySliderCallback(self, sender):
+        value = sender.get()
+        self.controller.setInactiveOpacity(value)
 
     def positionPopUpButtonCallback(self, sender):
         position = sender.positionName
