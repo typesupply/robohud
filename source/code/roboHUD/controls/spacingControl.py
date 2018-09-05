@@ -6,28 +6,33 @@ from mojo.roboFont import CurrentGlyph
 from mojo import events
 from roboHUD import RoboHUDController, BaseRoboHUDControl
 
-def drawLeftArrow(foregroundColor, backgroundColor):
-    return _drawArrow(foregroundColor, backgroundColor)
-
-def drawRightArrow(foregroundColor, backgroundColor):
-    return _drawArrow(foregroundColor, backgroundColor, flip=True)
-
-def _drawArrow(foregroundColor, backgroundColor, flip=False):
-    image = NSImage.alloc().initWithSize_((30, 19))
+def drawIcon(foregroundColor, backgroundColor):
+    image = NSImage.alloc().initWithSize_((120, 11))
     image.lockFocus()
     foregroundColor.set()
-    if flip:
-        transform = NSAffineTransform.transform()
-        transform.scaleXBy_yBy_(-1, 1)
-        transform.translateXBy_yBy_(-30, 0)
-        transform.concat()
     path = NSBezierPath.bezierPath()
-    path.moveToPoint_((5, 11))
-    path.lineToPoint_((25, 11))
-    path.moveToPoint_((10, 6))
-    path.lineToPoint_((5, 11))
-    path.lineToPoint_((10, 16))
     path.setLineWidth_(1.0)
+    # left
+    path.moveToPoint_((0, 5.5))
+    path.lineToPoint_((15, 5.5))
+    path.moveToPoint_((4, 8.5))
+    path.lineToPoint_((0, 5.5))
+    path.lineToPoint_((4, 2.5))
+    # right
+    path.moveToPoint_((120, 5.5))
+    path.lineToPoint_((105, 5.5))
+    path.moveToPoint_((114, 8.5))
+    path.lineToPoint_((120, 5.5))
+    path.lineToPoint_((114, 2.5))
+    # center
+    path.moveToPoint_((50, 5.5))
+    path.lineToPoint_((70, 5.5))
+    path.moveToPoint_((54, 8.5))
+    path.lineToPoint_((50, 5.5))
+    path.lineToPoint_((54, 2.5))
+    path.moveToPoint_((66, 8.5))
+    path.lineToPoint_((70, 5.5))
+    path.lineToPoint_((66, 2.5))
     path.stroke()
     image.unlockFocus()
     return image
@@ -36,8 +41,8 @@ def _drawArrow(foregroundColor, backgroundColor, flip=False):
 class SpacingHUDControl(BaseRoboHUDControl):
 
     name = "Spacing Editor"
-    size = (320, 20)
-    dimWhenInactive = False
+    size = (120, 30)
+    dimWhenInactive = True
 
     def start(self):
         super(SpacingHUDControl, self).start()
@@ -55,34 +60,29 @@ class SpacingHUDControl(BaseRoboHUDControl):
             sizeStyle="small"
         )
         self.view.widthEditText = vanilla.EditText(
-            (70, 0, 40, 19),
+            (40, 0, 40, 19),
             "",
             callback=self.widthEditTextCallback,
             continuous=False,
             sizeStyle="small"
         )
         self.view.rightEditText = vanilla.EditText(
-            (140, 0, 40, 19),
+            (80, 0, 40, 19),
             "",
             callback=self.rightEditTextCallback,
             continuous=False,
             sizeStyle="small"
         )
-        self.view.leftIcon = vanilla.ImageButton(
-            (40, 0, 30, 19),
-            imageObject=drawLeftArrow(foregroundColor, backgroundColor),
-            bordered=False
-        )
-        self.view.rightIcon = vanilla.ImageButton(
-            (110, 0, 30, 19),
-            imageObject=drawRightArrow(foregroundColor, backgroundColor),
+        self.view.icon = vanilla.ImageButton(
+            (0, 19, 120, 11),
+            imageObject=drawIcon(foregroundColor, backgroundColor),
             bordered=False
         )
 
         controls = [
             (self.view.widthEditText, NSCenterTextAlignment),
-            (self.view.leftEditText, NSRightTextAlignment),
-            (self.view.rightEditText, NSLeftTextAlignment)
+            (self.view.leftEditText, NSLeftTextAlignment),
+            (self.view.rightEditText, NSRightTextAlignment)
         ]
         for control, alignment in controls:
             textField = control.getNSTextField()
