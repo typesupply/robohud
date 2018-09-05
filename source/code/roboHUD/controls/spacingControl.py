@@ -1,38 +1,96 @@
-from AppKit import NSCenterTextAlignment, NSFocusRingTypeNone
+from AppKit import NSImage, NSAffineTransform, NSBezierPath,\
+    NSLeftTextAlignment, NSRightTextAlignment, NSCenterTextAlignment,\
+    NSFocusRingTypeNone
 import vanilla
 from mojo.roboFont import CurrentGlyph
 from mojo import events
 from roboHUD import RoboHUDController, BaseRoboHUDControl
+
+def drawLeftArrow(foregroundColor, backgroundColor):
+    return _drawArrow(foregroundColor, backgroundColor)
+
+def drawRightArrow(foregroundColor, backgroundColor):
+    return _drawArrow(foregroundColor, backgroundColor, flip=True)
+
+def _drawArrow(foregroundColor, backgroundColor, flip=False):
+    image = NSImage.alloc().initWithSize_((30, 19))
+    image.lockFocus()
+    foregroundColor.set()
+    if flip:
+        transform = NSAffineTransform.transform()
+        transform.scaleXBy_yBy_(-1, 1)
+        transform.translateXBy_yBy_(-30, 0)
+        transform.concat()
+    path = NSBezierPath.bezierPath()
+    path.moveToPoint_((5, 11))
+    path.lineToPoint_((25, 11))
+    path.moveToPoint_((10, 6))
+    path.lineToPoint_((5, 11))
+    path.lineToPoint_((10, 16))
+    path.setLineWidth_(1.0)
+    path.stroke()
+    image.unlockFocus()
+    return image
 
 
 class SpacingHUDControl(BaseRoboHUDControl):
 
     name = "Spacing Editor"
     size = (320, 20)
-    dimWhenInactive = True
+    dimWhenInactive = False
 
     def start(self):
         super(SpacingHUDControl, self).start()
-        self.glyph = None
         events.addObserver(self, "currentGlyphChangedCallback", "currentGlyphChanged")
-        self.view.leftEditText = vanilla.EditText((0, 0, 100, 19), "", callback=self.leftEditTextCallback, sizeStyle="small")
-        self.view.rightEditText = vanilla.EditText((110, 0, 100, 19), "", callback=self.rightEditTextCallback, sizeStyle="small")
-        self.view.widthEditText = vanilla.EditText((220, 0, 100, 19), "", callback=self.widthEditTextCallback, sizeStyle="small")
+        self.glyph = None
 
         foregroundColor = RoboHUDController().getForegroundColor()
         backgroundColor = RoboHUDController().getBackgroundColor()
+
+        self.view.leftEditText = vanilla.EditText(
+            (0, 0, 40, 19),
+            "",
+            callback=self.leftEditTextCallback,
+            continuous=False,
+            sizeStyle="small"
+        )
+        self.view.widthEditText = vanilla.EditText(
+            (70, 0, 40, 19),
+            "",
+            callback=self.widthEditTextCallback,
+            continuous=False,
+            sizeStyle="small"
+        )
+        self.view.rightEditText = vanilla.EditText(
+            (140, 0, 40, 19),
+            "",
+            callback=self.rightEditTextCallback,
+            continuous=False,
+            sizeStyle="small"
+        )
+        self.view.leftIcon = vanilla.ImageButton(
+            (40, 0, 30, 19),
+            imageObject=drawLeftArrow(foregroundColor, backgroundColor),
+            bordered=False
+        )
+        self.view.rightIcon = vanilla.ImageButton(
+            (110, 0, 30, 19),
+            imageObject=drawRightArrow(foregroundColor, backgroundColor),
+            bordered=False
+        )
+
         controls = [
-            self.view.widthEditText,
-            self.view.leftEditText,
-            self.view.rightEditText
+            (self.view.widthEditText, NSCenterTextAlignment),
+            (self.view.leftEditText, NSRightTextAlignment),
+            (self.view.rightEditText, NSLeftTextAlignment)
         ]
-        for control in controls:
+        for control, alignment in controls:
             textField = control.getNSTextField()
             textField.setBordered_(False)
             textField.setTextColor_(foregroundColor)
             textField.setBackgroundColor_(backgroundColor)
-            textField.setAlignment_(NSCenterTextAlignment)
             textField.setFocusRingType_(NSFocusRingTypeNone)
+            textField.setAlignment_(alignment)
         controls = [
             self.view.leftEditText,
             self.view.rightEditText
