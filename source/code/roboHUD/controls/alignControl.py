@@ -29,6 +29,7 @@ class AlignSelectionHUDControl(BaseRoboHUDControl):
         self.view.dxc = vanilla.ImageButton((25, 100, 19, 19), bordered=False, callback=self.distributeXCenter)
         self.view.dr = vanilla.ImageButton((50, 100, 19, 19), bordered=False, callback=self.distributeRight)
         self.setImagesInButtons()
+        self.setToolTipsInButtons()
 
     def setImagesInButtons(self):
         images = makeImages()
@@ -47,6 +48,27 @@ class AlignSelectionHUDControl(BaseRoboHUDControl):
         self.view.dl.setImage(imageObject=images["DL"])
         self.view.dxc.setImage(imageObject=images["DXC"])
         self.view.dr.setImage(imageObject=images["DR"])
+
+    def setToolTipsInButtons(self):
+        pairs = [
+            (self.view.yt, "Align Top"),
+            (self.view.yc, "Align Vertical Center"),
+            (self.view.yb, "Align Bottom"),
+            (self.view.xl, "Align Left"),
+            (self.view.xc, "Align Horizontal Center"),
+            (self.view.xr, "Align Right"),
+            (self.view.cc, "Align Center"),
+            (self.view.dx, "Distribute Horizontal Spacing"),
+            (self.view.dy, "Distribute Vertical Spacing"),
+            (self.view.dt, "Distribute Tops"),
+            (self.view.dyc, "Distribute Vertical Centers"),
+            (self.view.db, "Distribute Botton"),
+            (self.view.dl, "Distribute Lefts"),
+            (self.view.dxc, "Distribute Horizontal Centers"),
+            (self.view.dr, "Distribute Rights"),
+        ]
+        for control, tip in pairs:
+            control.getNSButton().setToolTip_(tip)
 
     # -----
     # Align
